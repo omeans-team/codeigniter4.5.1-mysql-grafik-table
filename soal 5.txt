@@ -1,0 +1,33 @@
+SELECT 
+    karyawan,
+    kpi,
+    AVG(jumlah_sales) AS nilai_normalisasi_sales,
+    AVG(jumlah_report) AS nilai_normalisasi_report,
+    AVG(actual_bobot_sales) AS nilai_normalisasi_actual_sales,
+    AVG(actual_bobot_report) AS nilai_normalisasi_actual_report,
+    AVG(kpi_persentase) AS nilai_normalisasi_kpi
+FROM
+    (
+        SELECT 
+            a.karyawan,
+            b.kpi,
+            COALESCE(b.jumlah_sales, 0) AS jumlah_sales,
+            COALESCE(c.jumlah_report, 0) AS jumlah_report,
+            ROUND(COALESCE(d.jumlah_aktual_sales, 0) / COALESCE(b.jumlah_sales, 1) * 50, 2) AS actual_bobot_sales,
+            ROUND(COALESCE(e.jumlah_aktual_report, 0) / COALESCE(c.jumlah_report, 1) * 50, 2) AS actual_bobot_report,
+            ROUND((COALESCE(d.jumlah_aktual_sales, 0) / COALESCE(b.jumlah_sales, 1) * 50) + (COALESCE(e.jumlah_aktual_report, 0) / COALESCE(c.jumlah_report, 1) * 50), 2) AS kpi_persentase
+        FROM
+            (SELECT karyawan FROM trusmi_tes.table_kpi_marketing WHERE karyawan IN ('adi', 'budi') GROUP BY karyawan) a
+        LEFT JOIN
+            (SELECT karyawan, COUNT(*) AS jumlah_sales FROM trusmi_tes.table_kpi_marketing WHERE karyawan IN ('adi', 'budi') AND kpi = 'sales' GROUP BY karyawan) b ON a.karyawan = b.karyawan
+            LEFT JOIN
+            (SELECT karyawan, COUNT(*) AS jumlah_sales FROM trusmi_tes.table_kpi_marketing WHERE karyawan IN ('adi', 'budi') AND kpi = 'sales' GROUP BY karyawan) b ON a.karyawan = b.karyawan
+        LEFT JOIN
+            (SELECT karyawan, COUNT(*) AS jumlah_report FROM trusmi_tes.table_kpi_marketing WHERE karyawan IN ('adi', 'budi') AND kpi = 'report' GROUP BY karyawan) c ON a.karyawan = c.karyawan
+        LEFT JOIN
+            (SELECT karyawan, SUM(CASE WHEN kpi = 'sales' AND aktual <= deadline THEN 1 ELSE 0 END) AS jumlah_aktual_sales FROM trusmi_tes.table_kpi_marketing WHERE karyawan IN ('adi', 'budi')) d ON a.karyawan = d.karyawan
+        LEFT JOIN
+            (SELECT karyawan, SUM(CASE WHEN kpi = 'report' AND aktual <= deadline THEN 1 ELSE 0 END) AS jumlah_aktual_report FROM trusmi_tes.table_kpi_marketing WHERE karyawan IN ('adi', 'budi')) e ON a.karyawan = e.karyawan
+    ) AS hasil
+GROUP BY
+    karyawan, kpi;

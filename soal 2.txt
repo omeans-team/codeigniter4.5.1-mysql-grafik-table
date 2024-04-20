@@ -1,0 +1,12 @@
+SELECT 
+    kpi,
+    COUNT(CASE WHEN aktual <= deadline THEN 1 END) AS jumlah_on_time,
+    COUNT(CASE WHEN aktual > deadline THEN 1 END) AS jumlah_late,
+    ROUND(COUNT(CASE WHEN aktual <= deadline THEN 1 END) / COUNT(*) * 100, 2) AS persentase_on_time,
+    ROUND(COUNT(CASE WHEN aktual > deadline THEN 1 END) / COUNT(*) * 100, 2) AS persentase_late
+FROM
+    trusmi_tes.table_kpi_marketing
+#WHERE
+#karyawan IN ('adi', 'budi')
+GROUP BY
+    kpi;

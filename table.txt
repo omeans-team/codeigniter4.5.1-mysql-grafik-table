@@ -1,0 +1,1 @@
+CREATE TABLE `table_kpi_marketing` (`id` int(11) NOT NULL,`tasklist` varchar(100) DEFAULT NULL,`kpi` varchar(100) DEFAULT NULL,`karyawan` varchar(100) DEFAULT NULL,`deadline` date DEFAULT NULL,`aktual` date DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=latin1;
